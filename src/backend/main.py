@@ -50,12 +50,20 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
     resume_embedding = model.encode(text)
     job_embedding = model.encode(job_description)
     score = cosine_similarity([resume_embedding], [job_embedding])[0][0]
-    fit_score = round(float(score) * 100, 2)
+
+    semantic_score = float(score) * 100
 
     resume_skills = extract_skills(text)
     job_skills = extract_skills(job_description)
     matched = resume_skills & job_skills
     missing = job_skills - resume_skills
+
+    if len(job_skills) > 0:
+        skill_score = (len(matched) / len(job_skills)) * 100
+    else:
+        skill_score = 0
+
+    fit_score = round((semantic_score * 0.6) + (skill_score * 0.4), 2)
 
     return{
         "fit_score": fit_score,
