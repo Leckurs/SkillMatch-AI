@@ -15,10 +15,33 @@ nlp = spacy.load("en_core_web_sm")
 
 # Common tech skills list to match against
 SKILLS = [
-    "python", "javascript", "java", "sql", "react", "node", "aws", "docker",
-    "kubernetes", "machine learning", "deep learning", "nlp", "fastapi",
-    "flask", "django", "git", "linux", "css", "html", "typescript",
-    "mongodb", "postgresql", "rest api", "tensorflow", "pytorch"
+    # Programming Languages
+    "python", "javascript", "typescript", "java", "c++", "c#", "ruby", "php",
+    "swift", "kotlin", "go", "rust", "scala", "matlab",
+
+    # Web Frontend
+    "react", "vue", "angular", "html", "css", "tailwind", "bootstrap",
+    "next.js", "gatsby", "svelte",
+
+    # Web Backend
+    "node", "fastapi", "flask", "django", "express", "spring", "laravel",
+
+    # Databases
+    "sql", "postgresql", "mysql", "mongodb", "redis", "elasticsearch",
+    "sqlite", "oracle", "firebase",
+
+    # Cloud & DevOps
+    "aws", "azure", "google cloud", "docker", "kubernetes", "terraform",
+    "linux", "git", "ci/cd", "jenkins", "github actions",
+
+    # AI & Data
+    "machine learning", "deep learning", "nlp", "computer vision",
+    "tensorflow", "pytorch", "scikit-learn", "pandas", "numpy",
+    "data analysis", "data science", "huggingface", "openai",
+
+    # APIs & Tools
+    "rest api", "graphql", "websockets", "microservices",
+    "agile", "scrum", "jira", "figma"
 ]
 
 def extract_skills(text: str) -> set:
