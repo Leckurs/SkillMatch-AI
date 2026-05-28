@@ -69,5 +69,5 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
         "fit_score": fit_score,
         "matched_skills": list(matched),
         "missing_skills": list(missing),
-        "summary": "Score based on semantic similarity with skill extraction."
+        "summary": f"You matched {len(matched)} out of {len(job_skills)} required skills. {'Consider learning: ' + ', '.join(missing) + ' to improve your chances.' if missing else 'Great match! You have all the required skills.'}"
     }
