@@ -5,11 +5,29 @@ import docx
 import io
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+import spacy
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 model = SentenceTransformer("all-MiniLM-L6-v2") # Load the AI model once when the server starts, not inside the endpoint to avoid reloading it on every request
+nlp = spacy.load("en_core_web_sm")
+
+# Common tech skills list to match against
+SKILLS = [
+    "python", "javascript", "java", "sql", "react", "node", "aws", "docker",
+    "kubernetes", "machine learning", "deep learning", "nlp", "fastapi",
+    "flask", "django", "git", "linux", "css", "html", "typescript",
+    "mongodb", "postgresql", "rest api", "tensorflow", "pytorch"
+]
+
+def extract_skills(text: str) -> set:
+    text_lower = text.lower()
+    found = set()
+    for skill in SKILLS:
+        if skill in text_lower:
+            found.add(skill)
+    return found
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
@@ -34,9 +52,14 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
     score = cosine_similarity([resume_embedding], [job_embedding])[0][0]
     fit_score = round(float(score) * 100, 2)
 
+    resume_skills = extract_skills(text)
+    job_skills = extract_skills(job_description)
+    matched = resume_skills & job_skills
+    missing = job_skills - resume_skills
+
     return{
         "fit_score": fit_score,
-        "matched_skills": [],
-        "missing_skills": [],
-        "summary": "Score based on semantic similarity. Skill extraction coming in Phase 3."
+        "matched_skills": list(matched),
+        "missing_skills": list(missing),
+        "summary": "Score based on semantic similarity with skill extraction."
     }
