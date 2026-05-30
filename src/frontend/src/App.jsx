@@ -124,7 +124,7 @@ async function handleSubmit() {
         </h1>
 
         <p className="text-center text-slate-300 text-lg mb-10">
-          University Project: AI-powered resume and job compatibility analysis App
+          AI-powered resume and job compatibility analysis
         </p>
 
         {/* Upload */}

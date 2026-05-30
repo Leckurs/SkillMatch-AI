@@ -6,50 +6,29 @@ import io
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import spacy
+from transformers import pipeline, AutoTokenizer
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 model = SentenceTransformer("all-MiniLM-L6-v2") # Load the AI model once when the server starts, not inside the endpoint to avoid reloading it on every request
 nlp = spacy.load("en_core_web_sm")
+MODEL_ID = "apostle2t/bert-finetuned-skillspan"
+tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, model_max_length=512)
+ner_pipeline = pipeline("ner", model=MODEL_ID, tokenizer=tokenizer, aggregation_strategy="simple")
 
-# Common tech skills list to match against
-SKILLS = [
-    # Programming Languages
-    "python", "javascript", "typescript", "java", "c++", "c#", "ruby", "php",
-    "swift", "kotlin", "go", "rust", "scala", "matlab",
-
-    # Web Frontend
-    "react", "vue", "angular", "html", "css", "tailwind", "bootstrap",
-    "next.js", "gatsby", "svelte",
-
-    # Web Backend
-    "node", "fastapi", "flask", "django", "express", "spring", "laravel",
-
-    # Databases
-    "sql", "postgresql", "mysql", "mongodb", "redis", "elasticsearch",
-    "sqlite", "oracle", "firebase",
-
-    # Cloud & DevOps
-    "aws", "azure", "google cloud", "docker", "kubernetes", "terraform",
-    "linux", "git", "ci/cd", "jenkins", "github actions",
-
-    # AI & Data
-    "machine learning", "deep learning", "nlp", "computer vision",
-    "tensorflow", "pytorch", "scikit-learn", "pandas", "numpy",
-    "data analysis", "data science", "huggingface", "openai",
-
-    # APIs & Tools
-    "rest api", "graphql", "websockets", "microservices",
-    "agile", "scrum", "jira", "figma"
-]
 
 def extract_skills(text: str) -> set:
-    text_lower = text.lower()
+    # Split text into chunks of 400 words to handle long documents
+    words = text.split()
+    chunks = [" ".join(words[i:i+400]) for i in range(0, len(words), 400)]
+
     found = set()
-    for skill in SKILLS:
-        if skill in text_lower:
-            found.add(skill)
+    for chunk in chunks:
+        entities = ner_pipeline(chunk)
+        for entity in entities:
+            if entity["score"] > 0.7:
+                found.add(entity["word"].lower().strip())
     return found
 
 def extract_text(file: UploadFile) -> str:
