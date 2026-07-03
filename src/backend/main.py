@@ -45,6 +45,20 @@ LEARNING_RESOURCES = {
     "rest api": "https://www.youtube.com/watch?v=qbLc5a9jdXo",
 }
 
+JOB_TITLES = {
+    "Machine Learning Engineer": ["python", "machine learning", "tensorflow", "pytorch", "deep learning"],
+    "Data Scientist": ["python", "sql", "machine learning", "pandas", "numpy", "data analysis"],
+    "Backend Developer": ["python", "sql", "rest api", "fastapi", "django", "flask", "postgresql"],
+    "Frontend Developer": ["javascript", "react", "typescript", "html", "css"],
+    "Full Stack Developer": ["javascript", "react", "python", "sql", "rest api", "git"],
+    "DevOps Engineer": ["docker", "kubernetes", "aws", "linux", "git", "ci/cd"],
+    "Cloud Engineer": ["aws", "azure", "google cloud", "docker", "kubernetes", "terraform"],
+    "NLP Engineer": ["python", "nlp", "machine learning", "deep learning", "tensorflow", "pytorch"],
+    "Software Engineer": ["python", "javascript", "git", "sql", "rest api"],
+    "Data Engineer": ["python", "sql", "postgresql", "mongodb", "docker", "aws"],
+}
+
+
 def extract_skills(text: str) -> set:
     # Split text into chunks of 400 words to handle long documents
     words = text.split()
@@ -96,6 +110,18 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
                     learning_resources[skill] = LEARNING_RESOURCES[key]
                     break
 
+    suggested_titles = []
+    for title, required_skills in JOB_TITLES.items():
+        matched_count = sum(1 for skill in required_skills if any(skill in r for r in resume_skills))
+        match_percentage = (matched_count / len(required_skills)) * 100
+        if match_percentage >= 50:
+            suggested_titles.append({
+                "title": title,
+                "match": round(match_percentage)
+            })
+
+    suggested_titles = sorted(suggested_titles, key=lambda x: x["match"], reverse=True)[:3]
+
     if len(job_skills) > 0:
         skill_score = (len(matched) / len(job_skills)) * 100
     else:
@@ -109,4 +135,5 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
         "missing_skills": list(missing),
         "summary": f"You matched {len(matched)} out of {len(job_skills)} required skills. {'Consider learning: ' + ', '.join(missing) + ' to improve your chances.' if missing else 'Great match! You have all the required skills.'}",
         "learning_resources": learning_resources,
+        "suggested_titles": suggested_titles,
     }

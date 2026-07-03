@@ -272,6 +272,23 @@ async function handleSubmit() {
             </div>
             </div>
 
+            {/* Suggested Job Titles */}
+            {result.suggested_titles && result.suggested_titles.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles size={18} className="text-yellow-400" />
+                  <span className="font-semibold">Suggested Job Titles</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {result.suggested_titles.map((item) => (
+                    <span key={item.title} className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-sm">
+                      {item.title} — {item.match}%
+                    </span>
+                  ))}
+    </div>
+  </div>
+)}
+
             {/* Summary */}
             <div className="border-t border-white/10 pt-5">
               <h3 className="font-semibold mb-3">
