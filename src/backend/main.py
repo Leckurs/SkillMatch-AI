@@ -17,6 +17,32 @@ MODEL_ID = "apostle2t/bert-finetuned-skillspan"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, model_max_length=512)
 ner_pipeline = pipeline("ner", model=MODEL_ID, tokenizer=tokenizer, aggregation_strategy="simple")
 
+LEARNING_RESOURCES = {
+    "python": "https://www.coursera.org/learn/python",
+    "javascript": "https://www.youtube.com/watch?v=W6NZfCO5SIk",
+    "typescript": "https://www.youtube.com/watch?v=BwuLxPH8IDs",
+    "java": "https://www.coursera.org/learn/java-programming",
+    "react": "https://www.youtube.com/watch?v=bMknfKXIFA8",
+    "sql": "https://www.coursera.org/learn/sql-for-data-science",
+    "machine learning": "https://www.coursera.org/learn/machine-learning",
+    "deep learning": "https://www.coursera.org/specializations/deep-learning",
+    "docker": "https://www.youtube.com/watch?v=fqMOX6JJhGo",
+    "kubernetes": "https://www.youtube.com/watch?v=X48VuDVv0do",
+    "aws": "https://www.coursera.org/learn/aws-fundamentals",
+    "git": "https://www.youtube.com/watch?v=RGOj5yH7evk",
+    "linux": "https://www.youtube.com/watch?v=sWbUDq4S6Y8",
+    "tensorflow": "https://www.coursera.org/learn/introduction-tensorflow",
+    "pytorch": "https://www.youtube.com/watch?v=c36lUUr864M",
+    "fastapi": "https://www.youtube.com/watch?v=0sOvCWFmrtA",
+    "mongodb": "https://www.youtube.com/watch?v=c2M-rlkkT5o",
+    "postgresql": "https://www.youtube.com/watch?v=qw--VYLpxG4",
+    "nlp": "https://www.coursera.org/specializations/natural-language-processing",
+    "agile": "https://www.coursera.org/learn/agile-development",
+    "graphql": "https://www.youtube.com/watch?v=ed8SzALpx1Q",
+    "node": "https://www.youtube.com/watch?v=fBNz5xF-Kx4",
+    "django": "https://www.youtube.com/watch?v=F5mRW0jo-U4",
+    "flask": "https://www.youtube.com/watch?v=Z1RJmh_OqeA",
+}
 
 def extract_skills(text: str) -> set:
     # Split text into chunks of 400 words to handle long documents
@@ -59,6 +85,7 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
     job_skills = extract_skills(job_description)
     matched = resume_skills & job_skills
     missing = job_skills - resume_skills
+    learning_resources = {skill: LEARNING_RESOURCES[skill] for skill in missing if skill in LEARNING_RESOURCES}
 
     if len(job_skills) > 0:
         skill_score = (len(matched) / len(job_skills)) * 100
@@ -71,5 +98,6 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
         "fit_score": fit_score,
         "matched_skills": list(matched),
         "missing_skills": list(missing),
-        "summary": f"You matched {len(matched)} out of {len(job_skills)} required skills. {'Consider learning: ' + ', '.join(missing) + ' to improve your chances.' if missing else 'Great match! You have all the required skills.'}"
+        "summary": f"You matched {len(matched)} out of {len(job_skills)} required skills. {'Consider learning: ' + ', '.join(missing) + ' to improve your chances.' if missing else 'Great match! You have all the required skills.'}",
+        "learning_resources": learning_resources,
     }

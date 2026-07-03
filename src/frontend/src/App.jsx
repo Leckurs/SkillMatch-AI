@@ -124,7 +124,7 @@ async function handleSubmit() {
         </h1>
 
         <p className="text-center text-slate-300 text-lg mb-10">
-          AI-powered resume and job compatibility analysis
+          University Project: AI-powered resume and job compatibility analysis web-app
         </p>
 
         {/* Upload */}
@@ -251,16 +251,25 @@ async function handleSubmit() {
                 </span>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {result.missing_skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-sm"
-                  >
+            <div className="flex flex-wrap gap-2">
+              {result.missing_skills.map((skill) => (
+                <span key={skill} className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-sm">
                     {skill}
                   </span>
-                ))}
-              </div>
+                  {result.learning_resources && result.learning_resources[skill] && (
+                    
+                      <a href={result.learning_resources[skill]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-cyan-400 hover:text-cyan-300 underline"
+                    >
+                      Learn →
+                    </a>
+                  )}
+                </span>
+              ))}
+            </div>
             </div>
 
             {/* Summary */}
