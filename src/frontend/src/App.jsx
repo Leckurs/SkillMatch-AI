@@ -75,6 +75,7 @@ function App() {
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
 async function handleSubmit() {
   setLoading(true);
@@ -98,7 +99,13 @@ async function handleSubmit() {
 
     console.timeEnd("request");
 
-    setResult(data);
+    if (data.error) {
+          setError(data.error);
+          setResult(null);
+        } else {
+          setError(null);
+          setResult(data);
+        }
   } catch (error) {
     console.error(error);
   } finally {
@@ -204,6 +211,14 @@ async function handleSubmit() {
             </>
           )}
         </button>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-6 p-4 bg-red-500/20 border border-red-500/40 rounded-xl flex items-center gap-3">
+            <AlertCircle size={20} className="text-red-400 flex-shrink-0" />
+            <span className="text-red-300 text-sm">{error}</span>
+          </div>
+        )}
 
         {/* Results */}
         {result && (

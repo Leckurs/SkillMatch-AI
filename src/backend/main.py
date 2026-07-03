@@ -74,13 +74,17 @@ def extract_skills(text: str) -> set:
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
-    if file.filename.endswith(".pdf"):
-        with pdfplumber.open(io.BytesIO(content)) as pdf:
-            return "\n".join(p.extract_text() or "" for p in pdf.pages)
-    elif file.filename.endswith(".docx"):
-        doc = docx.Document(io.BytesIO(content))
-        return "\n".join(p.text for p in doc.paragraphs)
-    return content.decode("utf-8", errors= "ignore")
+    try:
+        if file.filename.endswith(".pdf"):
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                return "\n".join(p.extract_text() or "" for p in pdf.pages)
+        elif file.filename.endswith(".docx"):
+            doc = docx.Document(io.BytesIO(content))
+            return "\n".join(p.text for p in doc.paragraphs)
+        else:
+            return ""
+    except Exception:
+        return ""
 
 def generate_feedback(fit_score, matched, missing, suggested_titles):
     feedback = []
@@ -114,8 +118,16 @@ def health():
     return {"status": "ok"}
 
 @app.post("/analyse")
+@app.post("/analyse")
 async def analyse(resume: UploadFile = File(...), job_description: str = Form(...)):
+    if not resume.filename.endswith((".pdf", ".docx")):
+        return {"error": "Unsupported file type. Please upload a PDF or DOCX file."}
+
     text = extract_text(resume)
+
+    if not text.strip():
+        return {"error": "Could not read any text from your file. It may be empty, corrupted, or a scanned image."}
+
     resume_embedding = model.encode(text)
     job_embedding = model.encode(job_description)
     score = cosine_similarity([resume_embedding], [job_embedding])[0][0]
