@@ -127,7 +127,7 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
     else:
         skill_score = 0
 
-    fit_score = round((semantic_score * 0.6) + (skill_score * 0.4), 2)
+    fit_score = round((semantic_score * 0.5) + (skill_score * 0.5), 2)
 
     return{
         "fit_score": fit_score,
