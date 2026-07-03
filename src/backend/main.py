@@ -18,21 +18,21 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, model_max_length=512)
 ner_pipeline = pipeline("ner", model=MODEL_ID, tokenizer=tokenizer, aggregation_strategy="simple")
 
 LEARNING_RESOURCES = {
-    "python": "https://www.coursera.org/learn/python",
-    "javascript": "https://www.youtube.com/watch?v=W6NZfCO5SIk",
+    "python": "https://www.youtube.com/watch?v=rfscVS0vtbw",
+    "javascript": "https://www.youtube.com/watch?v=jS4aFq5-91M",
     "typescript": "https://www.youtube.com/watch?v=BwuLxPH8IDs",
     "java": "https://www.coursera.org/learn/java-programming",
     "react": "https://www.youtube.com/watch?v=bMknfKXIFA8",
     "sql": "https://www.coursera.org/learn/sql-for-data-science",
-    "machine learning": "https://www.coursera.org/learn/machine-learning",
+    "machine learning": "https://www.youtube.com/watch?v=bmmQA8A-yUA",
     "deep learning": "https://www.coursera.org/specializations/deep-learning",
-    "docker": "https://www.youtube.com/watch?v=fqMOX6JJhGo",
-    "kubernetes": "https://www.youtube.com/watch?v=X48VuDVv0do",
-    "aws": "https://www.coursera.org/learn/aws-fundamentals",
-    "git": "https://www.youtube.com/watch?v=RGOj5yH7evk",
+    "docker": "https://www.youtube.com/watch?v=3c-iBn73dDE",
+    "kubernetes": "https://www.youtube.com/watch?v=ZUpE1hNQ1T0",
+    "aws": "https://www.youtube.com/watch?v=be8SLusiQR8",
+    "git": "https://www.youtube.com/watch?v=zTjRZNkhiEU",
     "linux": "https://www.youtube.com/watch?v=sWbUDq4S6Y8",
     "tensorflow": "https://www.coursera.org/learn/introduction-tensorflow",
-    "pytorch": "https://www.youtube.com/watch?v=c36lUUr864M",
+    "pytorch": "https://www.youtube.com/watch?v=V_xro1bcAuA",
     "fastapi": "https://www.youtube.com/watch?v=0sOvCWFmrtA",
     "mongodb": "https://www.youtube.com/watch?v=c2M-rlkkT5o",
     "postgresql": "https://www.youtube.com/watch?v=qw--VYLpxG4",
@@ -42,6 +42,7 @@ LEARNING_RESOURCES = {
     "node": "https://www.youtube.com/watch?v=fBNz5xF-Kx4",
     "django": "https://www.youtube.com/watch?v=F5mRW0jo-U4",
     "flask": "https://www.youtube.com/watch?v=Z1RJmh_OqeA",
+    "rest api": "https://www.youtube.com/watch?v=qbLc5a9jdXo",
 }
 
 def extract_skills(text: str) -> set:
@@ -85,7 +86,15 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
     job_skills = extract_skills(job_description)
     matched = resume_skills & job_skills
     missing = job_skills - resume_skills
-    learning_resources = {skill: LEARNING_RESOURCES[skill] for skill in missing if skill in LEARNING_RESOURCES}
+    learning_resources = {}
+    for skill in missing:
+        if skill in LEARNING_RESOURCES:
+            learning_resources[skill] = LEARNING_RESOURCES[skill]
+        else:
+            for key in LEARNING_RESOURCES:
+                if key in skill:
+                    learning_resources[skill] = LEARNING_RESOURCES[key]
+                    break
 
     if len(job_skills) > 0:
         skill_score = (len(matched) / len(job_skills)) * 100
