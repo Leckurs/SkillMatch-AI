@@ -289,6 +289,24 @@ async function handleSubmit() {
   </div>
 )}
 
+            {/* Resume Feedback */}
+            {result.feedback && result.feedback.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles size={18} className="text-cyan-400" />
+                  <span className="font-semibold">Resume Feedback</span>
+                </div>
+                <ul className="space-y-2">
+                  {result.feedback.map((tip, index) => (
+                    <li key={index} className="flex items-start gap-2 text-slate-300 text-sm">
+                      <span className="text-cyan-400 mt-0.5">•</span>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Summary */}
             <div className="border-t border-white/10 pt-5">
               <h3 className="font-semibold mb-3">

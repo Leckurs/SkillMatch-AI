@@ -82,6 +82,32 @@ def extract_text(file: UploadFile) -> str:
         return "\n".join(p.text for p in doc.paragraphs)
     return content.decode("utf-8", errors= "ignore")
 
+def generate_feedback(fit_score, matched, missing, suggested_titles):
+    feedback = []
+
+    if fit_score >= 75:
+        feedback.append("Strong match! Your profile aligns well with this role.")
+    elif fit_score >= 50:
+        feedback.append("Decent match. With a few improvements you could be a strong candidate.")
+    else:
+        feedback.append("This role may be a stretch. Consider building more of the required skills first.")
+
+    if len(matched) >=5:
+        feedback.append(f"Great technincal coverage - you have {len(matched)} relevant skills for this role.")
+    elif len(matched) >0:
+        feedback.append(f"You have {len(matched)} matching skills, but adding more would strengthen your profile.")
+    
+    if missing:
+        top_missing = list(missing)[:3]
+        feedback.append(f"Prioritise learning: {', '.join(top_missing)} - these are the most impactful gaps.")
+
+    if suggested_titles:
+        titles = ", ".join(t["title"] for t in suggested_titles[:2])
+        feedback.append(f"Based on your skills, you'd also be a good fit for: {titles}.")
+
+    feedback.append("Tip: Include quantified achievements (e.g. 'improved performance by 40%') to stand out.")
+
+    return feedback
 
 @app.get("/health")
 def health():
@@ -129,6 +155,8 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
 
     fit_score = round((semantic_score * 0.5) + (skill_score * 0.5), 2)
 
+    feedback = generate_feedback(fit_score, matched, missing, suggested_titles)
+
     return{
         "fit_score": fit_score,
         "matched_skills": list(matched),
@@ -136,4 +164,5 @@ async def analyse(resume: UploadFile = File(...), job_description: str = Form(..
         "summary": f"You matched {len(matched)} out of {len(job_skills)} required skills. {'Consider learning: ' + ', '.join(missing) + ' to improve your chances.' if missing else 'Great match! You have all the required skills.'}",
         "learning_resources": learning_resources,
         "suggested_titles": suggested_titles,
+        "feedback": feedback,
     }
