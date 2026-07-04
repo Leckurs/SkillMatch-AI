@@ -134,7 +134,7 @@ def generate_feedback(fit_score, matched, missing, suggested_titles):
 def health():
     return {"status": "ok"}
 
-@app.post("/analyse")
+
 @app.post("/analyse")
 async def analyse(resume: UploadFile = File(...), job_description: str = Form(...)):
     if not resume.filename.endswith((".pdf", ".docx")):
