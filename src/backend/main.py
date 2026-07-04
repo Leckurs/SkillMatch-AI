@@ -43,6 +43,8 @@ LEARNING_RESOURCES = {
     "django": "https://www.youtube.com/watch?v=F5mRW0jo-U4",
     "flask": "https://www.youtube.com/watch?v=Z1RJmh_OqeA",
     "rest api": "https://www.youtube.com/watch?v=qbLc5a9jdXo",
+    "data pipeline": "https://www.youtube.com/watch?v=PHsC_t0j1dU",
+    "large model": "https://www.coursera.org/specializations/deep-learning",
 }
 
 JOB_TITLES = {
@@ -58,6 +60,19 @@ JOB_TITLES = {
     "Data Engineer": ["python", "sql", "postgresql", "mongodb", "docker", "aws"],
 }
 
+JUNK_ENDINGS = ("a", "an", "the", "and", "or", "of", "in", "on", "to", "with", "for")
+
+def is_valid_skill(skill: str) -> bool:
+    # Drop tokenizer fragments like "##le environment"
+    if "##" in skill:
+        return False
+    # Drop very short junk like "agi"
+    if len(skill) < 3:
+        return False
+    # Drop phrases that end in a filler word (incomplete extractions)
+    if skill.split()[-1] in JUNK_ENDINGS:
+        return False
+    return True
 
 def extract_skills(text: str) -> set:
     # Split text into chunks of 400 words to handle long documents
@@ -69,7 +84,9 @@ def extract_skills(text: str) -> set:
         entities = ner_pipeline(chunk)
         for entity in entities:
             if entity["score"] > 0.7:
-                found.add(entity["word"].lower().strip())
+                skill = entity["word"].lower().strip()
+                if is_valid_skill(skill):
+                    found.add(skill)
     return found
 
 def extract_text(file: UploadFile) -> str:
